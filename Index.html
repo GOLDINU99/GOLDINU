@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GOLDINU Presale</title>
+  <style>
+    :root{--bg:#0b0f14;--card:#121826;--txt:#e7eefc;--muted:#a9b4c7;--acc:#f7b500;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--txt);}
+    .wrap{max-width:980px;margin:0 auto;padding:20px;}
+    .tabs{display:flex;gap:10px;margin-bottom:14px;}
+    .btn{border:1px solid #2a3550;background:#0f1522;color:var(--txt);padding:10px 14px;border-radius:10px;cursor:pointer;}
+    .btn--active{border-color:var(--acc);box-shadow:0 0 0 2px rgba(247,181,0,.15) inset;}
+    .card{background:var(--card);border:1px solid #222c41;border-radius:14px;padding:16px;margin-bottom:14px;}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    input{background:#0f1522;border:1px solid #2a3550;color:var(--txt);padding:10px 12px;border-radius:10px;min-width:200px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border-bottom:1px solid #222c41;padding:10px;text-align:left;color:var(--txt)}
+    th{color:var(--muted);font-weight:600}
+    .muted{color:var(--muted)}
+    .hide{display:none}
+    a{color:#9bd2ff}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #2a3550;border-radius:999px;background:#0f1522}
+    code{background:#0f1522;border:1px solid #2a3550;padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="tabs">
+      <button id="tabPresale" class="btn btn--active">Presale 🐾</button>
+      <button id="tabTokenomics" class="btn">Tokenomics 📊</button>
+    </div>
+
+    <!-- PRESALE PAGE -->
+    <div id="pagePresale">
+      <div class="card">
+        <h2 style="margin:0 0 6px 0;">GOLDINU Presale 🐶</h2>
+        <div class="muted">Sende SOL an die Presale Wallet. Minimum: <b><span id="minSolText"></span> SOL</b></div>
+
+        <div style="margin-top:10px;" class="row">
+          <span class="pill">Presale Wallet: <code id="kWalletShort"></code></span>
+          <button id="copyPresale" class="btn">Copy</button>
+          <button id="openSolscan" class="btn">Open Solscan</button>
+        </div>
+
+        <div style="margin-top:10px;" class="muted">
+          Full: <span id="kWalletFull"></span>
+        </div>
+
+        <div style="margin-top:14px;" class="row">
+          <button id="btnConnect" class="btn">Connect Phantom</button>
+          <span class="pill">Your Wallet: <code id="kUserWallet">—</code></span>
+          <span class="pill" id="phaseBadge">Phase: — 🐶</span>
+        </div>
+
+        <div style="margin-top:14px;" class="row">
+          <input id="amountSol" type="number" step="0.0001" min="0" placeholder="Amount in SOL (e.g. 0.2)" />
+          <button id="btnBuy" class="btn">Buy 🐾</button>
+          <button id="btnTokenomicsJump" class="btn">Tokenomics</button>
+        </div>
+
+        <div style="margin-top:10px;" id="txStatus" class="muted">Status: ready 🐾</div>
+        <div style="margin-top:8px;" class="muted" id="rpcStatus">RPC: —</div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">Phases</h3>
+        <table id="phaseTable">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Rate</th>
+              <th>SOL Cap</th>
+              <th>Token Cap</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOKENOMICS PAGE -->
+    <div id="pageTokenomics" class="hide">
+      <div class="card">
+        <h2 style="margin:0 0 8px 0;">Tokenomics 📊</h2>
+        <div class="muted">Hier kommt dein Tokenomics-Content rein.</div>
+        <div style="margin-top:12px;">
+          <button id="backToPresale" class="btn">⬅ Back to Presale</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const PRESALE_WALLET = "6g2Kn6hgfFUGXH44dDHLGPFL5eQG6FqR346HgGUrCmx4"; // <-- SOL goes here
+    const MIN_SOL = 0.2;
+
+    // OPTIONAL: Baseline wallet SOL at presale start
+    const START_BALANCE_SOL = 0;
+
+    // ✅ RPC: Alchemy first + safe fallbacks
+    const RPC_LIST = [
+      "https://solana-mainnet.g.alchemy.com/v2/uenOkKWZ9SOxMAXUPWvin",
+      "https://api.mainnet-beta.solana.com",
+      "https://rpc.ankr.com/solana"
+    ];
+
+    // Presale phases (Rate + SOL cap + Token cap)
+    const PHASES = [
+      {phase: 1, rate: 6000000, solCap: 3.0,     tokenCap: 18000000},
+      {phase: 2, rate: 5750000, solCap: 5.0,     tokenCap: 28750000},
+      {phase: 3, rate: 5500000, solCap: 7.0,     tokenCap: 38500000},
+      {phase: 4, rate: 5250000, solCap: 9.0,     tokenCap: 47250000},
+      {phase: 5, rate: 5000000, solCap: 12.0,    tokenCap: 60000000},
+      {phase: 6, rate: 4750000, solCap: 12.0,    tokenCap: 57000000},
+      {phase: 7, rate: 4500000, solCap: 12.0,    tokenCap: 54000000},
+      {phase: 8, rate: 4250000, solCap: 12.0,    tokenCap: 51000000},
+      {phase: 9, rate: 4000000, solCap: 12.0,    tokenCap: 48000000},
+      {phase:10, rate: 3750000, solCap: 12.6667, tokenCap: 47500000},
+    ];
+
+    // =========================
+    // UI HELPERS
+    // =========================
+    const el = (id)=>document.getElementById(id);
+    function shortAddr(a){ return a.slice(0,4)+"…"+a.slice(-5); }
+    function formatNum(n){ return n.toLocaleString("en-US"); }
+    function formatSol(n){ return (Math.round(n*10000)/10000).toString(); }
+    function setStatus(msg){ el("txStatus").innerHTML = msg; }
+    function setRpcStatus(msg){ el("rpcStatus").textContent = msg; }
+
+    el("minSolText").textContent = MIN_SOL;
+
+    // Tabs
+    const pagePresale = el("pagePresale");
+    const pageTokenomics = el("pageTokenomics");
+    const tabPresale = el("tabPresale");
+    const tabTokenomics = el("tabTokenomics");
+
+    function showPresale(){
+      pagePresale.classList.remove("hide");
+      pageTokenomics.classList.add("hide");
+      tabPresale.classList.add("btn--active");
+      tabTokenomics.classList.remove("btn--active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+    function showTokenomics(){
+      pagePresale.classList.add("hide");
+      pageTokenomics.classList.remove("hide");
+      tabTokenomics.classList.add("btn--active");
+      tabPresale.classList.remove("btn--active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+    tabPresale.addEventListener("click", showPresale);
+    tabTokenomics.addEventListener("click", showTokenomics);
+    el("btnTokenomicsJump").addEventListener("click", showTokenomics);
+    el("backToPresale").addEventListener("click", showPresale);
+
+    // Solscan + Copy
+    el("openSolscan").addEventListener("click", ()=>window.open(`https://solscan.io/account/${PRESALE_WALLET}`,"_blank"));
+    el("copyPresale").addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(PRESALE_WALLET);
+        setStatus("Copied presale wallet ✅🐾");
+        setTimeout(()=>setStatus("Status: ready 🐾"), 1200);
+      }catch{
+        setStatus("Copy failed. Please copy manually 🐶");
+      }
+    });
+
+    // Fill wallet text
+    el("kWalletShort").textContent = shortAddr(PRESALE_WALLET);
+    el("kWalletFull").textContent = PRESALE_WALLET;
+
+    // Phase table
+    const tbody = document.querySelector("#phaseTable tbody");
+    PHASES.forEach(p=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><b>Phase ${p.phase}</b> 🐾</td>
+        <td>${formatNum(p.rate)} GOLDINU</td>
+        <td>${formatSol(p.solCap)} SOL</td>
+        <td>${formatNum(p.tokenCap)} GOLDINU</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // =========================
+    // SOLANA + RPC MANAGER
+    // =========================
+    const { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } = solanaWeb3;
+
+    let connection = null;
+    let currentRpcIndex = 0;
+
+    async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+    async function probeRpc(url){
+      const c = new Connection(url, "confirmed");
+      const t0 = performance.now();
+      await c.getLatestBlockhash("confirmed");
+      const t1 = performance.now();
+      return { url, latencyMs: Math.round(t1 - t0) };
+    }
+
+    async function initConnection(){
+      // Probe all RPCs and pick the fastest that works
+      const results = [];
+      for (const url of RPC_LIST){
+        try{
+          const r = await probeRpc(url);
+          results.push(r);
+        }catch(e){
+          // ignore failed
+        }
+      }
+
+      if (!results.length){
+        setRpcStatus("RPC: all endpoints failed 🐶");
+        throw new Error("All RPC endpoints failed");
+      }
+
+      results.sort((a,b)=>a.latencyMs - b.latencyMs);
+      const best = results[0];
+
+      currentRpcIndex = RPC_LIST.indexOf(best.url);
+      connection = new Connection(best.url, "confirmed");
+      setRpcStatus(`RPC: ${best.url} (~${best.latencyMs}ms) ✅`);
+    }
+
+    async function switchToNextRpc(){
+      // rotate to next RPC in list
+      for (let step = 1; step <= RPC_LIST.length; step++){
+        const idx = (currentRpcIndex + step) % RPC_LIST.length;
+        const url = RPC_LIST[idx];
+        try{
+          const c = new Connection(url, "confirmed");
+          await c.getLatestBlockhash("confirmed");
+          connection = c;
+          currentRpcIndex = idx;
+          setRpcStatus(`RPC switched: ${url} ✅`);
+          return true;
+        }catch(e){
+          // try next
+        }
+      }
+      setRpcStatus("RPC switch failed (all dead) 🐶");
+      return false;
+    }
+
+    // Generic retry wrapper with RPC switching
+    async function withRetries(fn, { tries = 3, delayMs = 350 } = {}){
+      let lastErr = null;
+      for (let i = 0; i < tries; i++){
+        try{
+          return await fn();
+        }catch(e){
+          lastErr = e;
+          // try switching RPC on network-ish errors
+          await switchToNextRpc();
+          await sleep(delayMs * (i+1));
+        }
+      }
+      throw lastErr;
+    }
+
+    // =========================
+    // PHANTOM BUY
+    // =========================
+    let provider = null;
+    let userPubkey = null;
+
+    function getProvider(){
+      if ("solana" in window) {
+        const p = window.solana;
+        if (p?.isPhantom) return p;
+      }
+      return null;
+    }
+
+    async function connectWallet(){
+      provider = getProvider();
+      if (!provider){
+        setStatus("Phantom not found. Install Phantom 🐶");
+        return;
+      }
+      try{
+        const resp = await provider.connect();
+        userPubkey = resp.publicKey;
+        el("kUserWallet").textContent = shortAddr(userPubkey.toString());
+        setStatus("Wallet connected ✅🐾");
+      }catch(e){
+        setStatus("Connect canceled 🐶");
+      }
+    }
+
+    // Balance helpers
+    async function getWalletSol(){
+      const pub = new PublicKey(PRESALE_WALLET);
+      return await withRetries(async ()=>{
+        const lamports = await connection.getBalance(pub, "confirmed");
+        return lamports / LAMPORTS_PER_SOL;
+      }, { tries: 3 });
+    }
+
+    function computeCurrentPhase(raisedSol){
+      let cum = 0;
+      for (const p of PHASES){
+        cum += p.solCap;
+        if (raisedSol < cum + 1e-9) return p.phase;
+      }
+      return 10;
+    }
+
+    function totalSolCap(){
+      return PHASES.reduce((a,p)=>a + p.solCap, 0);
+    }
+
+    async function updatePhaseBadge(){
+      try{
+        const bal = await getWalletSol();
+        const raised = Math.max(0, bal - START_BALANCE_SOL);
+        const phase = computeCurrentPhase(raised);
+        el("phaseBadge").textContent = `Phase: ${phase} 🐾 • Raised: ${formatSol(raised)} SOL`;
+      }catch{
+        el("phaseBadge").textContent = "Phase: — (network) 🐶";
+      }
+    }
+
+    // ✅ Frontend cap check (prevents UI oversell; does NOT stop direct wallet sends)
+    async function capCheckOrBlock(amt){
+      const cap = totalSolCap();
+      const bal = await getWalletSol();
+      const raised = Math.max(0, bal - START_BALANCE_SOL);
+      if (raised + amt > cap + 1e-9){
+        const left = Math.max(0, cap - raised);
+        setStatus(`Sold out / Cap reached 🐶 Left: ${formatSol(left)} SOL`);
+        return false;
+      }
+      return true;
+    }
+
+    async function sendSol(){
+      if (!connection){
+        setStatus("Initializing network… 🐾");
+        await initConnection();
+      }
+
+      if (!userPubkey){
+        await connectWallet();
+        if (!userPubkey) return;
+      }
+
+      const amt = Number(el("amountSol").value);
+      if (!amt || amt <= 0){
+        setStatus("Enter a valid SOL amount (e.g. 0.2) 🐾");
+        return;
+      }
+      if (amt < MIN_SOL){
+        setStatus(`Minimum is ${MIN_SOL} SOL 🐶`);
+        return;
+      }
+
+      // Cap check (UI)
+      try{
+        setStatus("Checking cap… 🐾");
+        const ok = await capCheckOrBlock(amt);
+        if (!ok) return;
+      }catch(e){
+        // If cap check fails due to RPC, still allow user to try (your choice)
+        setStatus("Cap check failed (network). You can retry 🐶");
+        return;
+      }
+
+      try{
+        setStatus("Creating transaction… 🐾");
+        const fromPubkey = userPubkey;
+        const toPubkey = new PublicKey(PRESALE_WALLET);
+
+        const tx = new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey,
+            toPubkey,
+            lamports: Math.round(amt * LAMPORTS_PER_SOL),
+          })
+        );
+
+        tx.feePayer = fromPubkey;
+
+        // getLatestBlockhash with retries + rpc switching
+        const { blockhash, lastValidBlockHeight } = await withRetries(
+          async ()=> await connection.getLatestBlockhash("finalized"),
+          { tries: 3 }
+        );
+        tx.recentBlockhash = blockhash;
+
+        setStatus("Sign in Phantom… 🐶");
+        const signed = await provider.signTransaction(tx);
+
+        setStatus("Sending… 🐾");
+        const sig = await withRetries(
+          async ()=> await connection.sendRawTransaction(signed.serialize(), { skipPreflight: false }),
+          { tries: 3 }
+        );
+
+        // Confirm with stronger logic (blockheight-based confirm if available)
+        setStatus("Confirming… 🐶");
+        await withRetries(async ()=>{
+          // blockheight confirm (more robust)
+          return await connection.confirmTransaction(
+            { signature: sig, blockhash, lastValidBlockHeight },
+            "confirmed"
+          );
+        }, { tries: 3 });
+
+        setStatus(`✅ Success 🐾 TX: <a href="https://solscan.io/tx/${sig}" target="_blank" rel="noreferrer">${sig}</a>`);
+        setTimeout(updatePhaseBadge, 1800);
+      }catch(e){
+        // Auto RPC switch + user message
+        await switchToNextRpc();
+        setStatus("Error: " + (e?.message || e) + " 🐶");
+      }
+    }
+
+    el("btnConnect").addEventListener("click", connectWallet);
+    el("btnBuy").addEventListener("click", sendSol);
+
+    // =========================
+    // INIT
+    // =========================
+    (async ()=>{
+      try{
+        setStatus("Initializing RPC… 🐾");
+        await initConnection();
+        setStatus("Status: ready 🐾");
+        await updatePhaseBadge();
+        setInterval(updatePhaseBadge, 15000);
+      }catch(e){
+        setStatus("Network init failed 🐶");
+      }
+    })();
+  </script>
+</body>
+</html>
