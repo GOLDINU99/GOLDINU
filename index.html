@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GOLDINU Presale</title>
+
+  <style>
+    :root{
+      --bg:#06070b;
+      --card: rgba(10,12,18,.74);
+      --stroke: rgba(255,215,120,.22);
+      --txt:#f5f1e6;
+      --muted: rgba(245,241,230,.75);
+      --gold1:#ffd37a;
+      --gold2:#b77a1f;
+
+      --glow: 0 0 22px rgba(255,203,115,.16), 0 0 64px rgba(255,156,40,.10);
+      --glow2: 0 0 0 1px rgba(255,215,120,.16) inset, 0 0 32px rgba(255,180,80,.10);
+      --r: 18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(255,190,90,.12), transparent 55%),
+        radial-gradient(900px 600px at 80% 10%, rgba(255,140,30,.10), transparent 60%),
+        var(--bg);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    .grain{
+      position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+      mix-blend-mode:overlay;
+      opacity:.18;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    .wrap{max-width:1060px;margin:0 auto;padding:18px 16px 60px}
+
+    .frame{
+      border-radius: 26px;
+      border: 1px solid rgba(255,215,120,.22);
+      background: rgba(0,0,0,.20);
+      box-shadow: 0 0 0 1px rgba(255,215,120,.10) inset, 0 18px 80px rgba(0,0,0,.55);
+      padding: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .top{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px; padding:14px 14px;
+      border:1px solid rgba(255,215,120,.20);
+      border-radius: 22px;
+      background: rgba(0,0,0,.40);
+      box-shadow: var(--glow2);
+      backdrop-filter: blur(10px);
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand img{width:46px;height:46px;border-radius:14px;object-fit:cover;box-shadow:0 0 0 1px rgba(255,215,120,.22)}
+    .brand .t{display:flex;flex-direction:column;min-width:0}
+    .brand .t b{letter-spacing:.8px}
+    .brand .t span{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{
+      border:1px solid rgba(255,215,120,.22);
+      background: rgba(10,12,18,.55);
+      color:var(--txt);
+      padding:10px 14px;
+      border-radius: 999px;
+      cursor:pointer;
+      transition:.15s transform, .15s border-color, .15s box-shadow;
+      box-shadow: 0 6px 22px rgba(0,0,0,.22);
+      backdrop-filter: blur(8px);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{transform:scale(.99)}
+    .btn--active{
+      border-color: rgba(255,215,120,.55);
+      box-shadow: 0 0 0 2px rgba(255,215,120,.10) inset, var(--glow);
+    }
+
+    /* ✅ HERO STRIP uses your FRONT image */
+    .heroStrip{
+      margin-top:14px;
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid rgba(255,215,120,.22);
+      box-shadow: 0 0 0 1px rgba(255,215,120,.10) inset, 0 18px 60px rgba(0,0,0,.55);
+      position:relative;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.74), rgba(0,0,0,.40) 55%, rgba(0,0,0,.18)),
+        url("./presalehero.png") center/cover no-repeat; /* ✅ FIXED PATH */
+      min-height: 170px;
+    }
+    .heroStrip::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(circle at 70% 40%, rgba(255,210,120,.12), transparent 55%);
+      pointer-events:none;
+    }
+    .heroInner{
+      position:relative;
+      padding:18px;
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .heroLeft{max-width:640px}
+    .heroTitle{
+      margin:0;
+      font-size:42px;
+      letter-spacing:1px;
+      text-shadow: 0 2px 0 rgba(0,0,0,.65);
+    }
+    .heroMeta{
+      margin-top:8px;
+      color:rgba(245,241,230,.78);
+      line-height:1.4;
+      font-size:14px;
+    }
+    .heroBadges{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,215,120,.22);
+      background: rgba(0,0,0,.30);
+      color:rgba(245,241,230,.85);
+      font-size:13px;
+    }
+    .heroRight{display:flex;align-items:center;gap:12px}
+    .coin{
+      width:92px;height:92px;border-radius:999px;
+      border:1px solid rgba(255,215,120,.24);
+      box-shadow: 0 0 0 2px rgba(255,215,120,.08) inset, 0 0 40px rgba(255,190,90,.18);
+      background: rgba(0,0,0,.25);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+    }
+    .coin img{width:100%;height:100%;object-fit:cover}
+    @media(max-width:820px){
+      .heroTitle{font-size:34px}
+      .heroRight{display:none}
+      .heroStrip{min-height:150px}
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    @media(max-width: 900px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      border:1px solid rgba(255,215,120,.20);
+      background: linear-gradient(180deg, rgba(10,12,18,.76), rgba(10,12,18,.60));
+      border-radius: 22px;
+      padding:16px;
+      box-shadow: var(--glow2);
+      backdrop-filter: blur(10px);
+    }
+    .card--buy{
+      background:
+        radial-gradient(600px 220px at 10% 0%, rgba(255,210,120,.10), transparent 55%),
+        linear-gradient(180deg, rgba(10,12,18,.78), rgba(10,12,18,.62));
+    }
+
+    .h1{
+      font-size:30px; margin:0 0 8px;
+      letter-spacing:1px;
+      text-shadow: 0 1px 0 rgba(0,0,0,.7);
+    }
+    .sub{color:var(--muted);line-height:1.45}
+    .goldline{
+      height:1px; margin:12px 0;
+      background: linear-gradient(90deg, transparent, rgba(255,215,120,.65), transparent);
+      opacity:.65;
+    }
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input{
+      width:100%;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,215,120,.25);
+      color:var(--txt);
+      padding:12px 12px;
+      border-radius:999px;
+      outline:none;
+    }
+    input:focus{border-color: rgba(255,215,120,.55); box-shadow: 0 0 0 3px rgba(255,215,120,.10)}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;
+      border:1px solid rgba(255,215,120,.20);
+      border-radius:999px;
+      background: rgba(0,0,0,.28);
+      color:var(--muted);
+      max-width:100%;
+    }
+    code{color:var(--txt);font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas; background:rgba(0,0,0,.25); padding:2px 8px; border-radius:999px}
+
+    .bigBtn{
+      border:1px solid rgba(255,215,120,.30);
+      background: linear-gradient(180deg, rgba(255,215,120,.16), rgba(0,0,0,.30));
+      padding:12px 14px;
+      border-radius:999px;
+      color:var(--txt);
+      cursor:pointer;
+      box-shadow: var(--glow2);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      white-space:nowrap;
+    }
+    .bigBtn:hover{border-color: rgba(255,215,120,.46)}
+
+    table{width:100%; border-collapse:collapse; margin-top:10px; overflow:hidden; border-radius:16px}
+    th,td{border-bottom:1px solid rgba(255,215,120,.10); padding:10px; text-align:left}
+    th{color:rgba(245,241,230,.74); font-weight:700}
+    .hide{display:none}
+
+    .imgFrame{
+      border:1px solid rgba(255,215,120,.22);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow: var(--glow2);
+      background: rgba(0,0,0,.25);
+    }
+    .imgFrame img{display:block;width:100%;height:auto}
+
+    .kpiGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+    @media(max-width:700px){.kpiGrid{grid-template-columns:1fr}}
+    .kpi{
+      padding:12px;
+      border:1px solid rgba(255,215,120,.14);
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+    }
+    .kpi b{display:block;font-size:16px}
+    .kpi span{color:var(--muted);font-size:13px}
+
+    .roadmap{display:grid;gap:10px;margin-top:12px}
+    .rmItem{
+      display:flex; gap:12px; align-items:flex-start;
+      padding:12px; border:1px solid rgba(255,215,120,.14);
+      border-radius:16px; background:rgba(0,0,0,.16);
+    }
+    .dot{
+      width:12px;height:12px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, var(--gold1), var(--gold2));
+      margin-top:6px; flex:0 0 12px;
+      box-shadow:0 0 18px rgba(255,200,90,.22);
+    }
+    .rmItem b{display:block}
+    .rmItem p{margin:4px 0 0;color:var(--muted);line-height:1.35}
+
+    .footerNote{margin-top:10px;color:rgba(245,241,230,.70);font-size:12.5px;line-height:1.35}
+  </style>
+</head>
+
+<body>
+  <div class="grain"></div>
+
+  <div class="wrap">
+    <div class="frame">
+
+      <div class="top">
+        <div class="brand">
+          <img src="./goldinu.png" alt="GOLDINU" />
+          <div class="t">
+            <b>GOLDINU</b>
+            <span>Solana Presale • Golden vibes ✨</span>
+          </div>
+        </div>
+        <div class="tabs">
+          <button id="tabPresale" class="btn btn--active">Presale</button>
+          <button id="tabTokenomics" class="btn">Tokenomics</button>
+        </div>
+      </div>
+
+      <div class="heroStrip">
+        <div class="heroInner">
+          <div class="heroLeft">
+            <h1 class="heroTitle">GOLDINU</h1>
+            <div class="heroMeta">Premium Solana Presale • Structured 10-Phase Model • RWA Vision</div>
+            <div class="heroBadges">
+              <span class="badge">✅ Transparent Phases</span>
+              <span class="badge">🔒 LP Locked at Launch (plan)</span>
+              <span class="badge">🐾 Community First</span>
+            </div>
+          </div>
+          <div class="heroRight">
+            <div class="coin" title="GOLDINU">
+              <img src="./goldinu.png" alt="GOLDINU Mascot" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="pagePresale">
+        <div class="grid">
+          <div class="card card--buy">
+            <div class="h1">GOLDINU Presale 🐶</div>
+            <div class="sub">
+              Send SOL to the official presale wallet. Minimum: <b><span id="minSolText"></span> SOL</b>.<br/>
+              Please always verify the wallet address before sending.
+            </div>
+
+            <div class="goldline"></div>
+
+            <div class="row">
+              <span class="pill">Presale Wallet: <code id="kWalletShort"></code></span>
+              <button id="copyPresale" class="btn">Copy</button>
+              <button id="openSolscan" class="btn">Solscan</button>
+            </div>
+
+            <div style="margin-top:10px" class="sub">Full: <span id="kWalletFull"></span></div>
+
+            <div class="goldline"></div>
+
+            <div class="row">
+              <button id="btnConnect" class="bigBtn">Connect Phantom</button>
+              <span class="pill">Your Wallet: <code id="kUserWallet">—</code></span>
+              <span class="pill" id="phaseBadge">Phase: —</span>
+            </div>
+
+            <div style="margin-top:12px" class="row">
+              <div style="flex:1; min-width:240px">
+                <input id="amountSol" type="number" step="0.0001" min="0" placeholder="Amount in SOL (e.g. 0.2)" />
+              </div>
+              <button id="btnBuy" class="bigBtn">Buy</button>
+            </div>
+
+            <div style="margin-top:10px" id="txStatus" class="sub">Status: initializing…</div>
+            <div style="margin-top:6px" class="sub" id="rpcStatus">RPC: —</div>
+
+            <div class="footerNote">
+              Note: Contributions go directly on-chain to the official presale wallet. There is no refund logic on this page.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="row" style="justify-content:space-between">
+              <b style="font-size:18px">Phases & Allocation</b>
+              <button id="btnTokenomicsJump" class="btn">Tokenomics →</button>
+            </div>
+
+            <div class="kpiGrid">
+              <div class="kpi"><b>Supply</b><span>1,000,000,000 GOLDINU</span></div>
+              <div class="kpi"><b>Presale</b><span>10 phases • rate decreases each phase</span></div>
+              <div class="kpi"><b>LP</b><span>Locked at launch (plan)</span></div>
+            </div>
+
+            <div class="goldline"></div>
+
+            <table id="phaseTable">
+              <thead>
+                <tr><th>Phase</th><th>Rate</th><th>SOL Cap</th><th>Token Cap</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="pageTokenomics" class="hide">
+        <div class="grid">
+          <div class="card">
+            <div class="h1" style="font-size:28px;margin-bottom:6px">Tokenomics</div>
+            <div class="sub">$GINU token distribution + presale phases. ✨</div>
+
+            <div class="goldline"></div>
+
+            <div class="imgFrame">
+              <img src="./tokenomics.png" alt="GOLDINU Tokenomics" />
+            </div>
+
+            <div class="goldline"></div>
+
+            <b style="font-size:18px">Roadmap</b>
+            <div class="roadmap">
+              <div class="rmItem">
+                <div class="dot"></div>
+                <div>
+                  <b>1) Building Community & Presale Start</b>
+                  <p>Community onboarding, visibility, transparent presale tracking.</p>
+                </div>
+              </div>
+              <div class="rmItem">
+                <div class="dot"></div>
+                <div>
+                  <b>2) Presale End → Launch & Listing</b>
+                  <p>LP creation + lock at launch. Trading opens for everyone.</p>
+                </div>
+              </div>
+              <div class="rmItem">
+                <div class="dot"></div>
+                <div>
+                  <b>3) RWA Utility</b>
+                  <p>RWA integration, partnerships, and utility rollout.</p>
+                </div>
+              </div>
+              <div class="rmItem">
+                <div class="dot"></div>
+                <div>
+                  <b>4) Buyback & Burn System</b>
+                  <p>Buyback + burn schedule (and transparency updates).</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:14px" class="row">
+              <button id="backToPresale" class="btn">⬅ Back to Presale</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="row" style="gap:12px;align-items:center">
+              <img src="./goldinu.png" alt="Gold Inu Buddy" style="width:88px;height:88px;border-radius:22px;object-fit:cover;box-shadow:0 0 0 1px rgba(255,215,120,.25), var(--glow)" />
+              <div>
+                <b style="font-size:18px">GOLDINU Buddy 🐾</b>
+                <div class="sub">Mascot presence for brand consistency on every page.</div>
+              </div>
+            </div>
+
+            <div class="goldline"></div>
+
+            <b style="font-size:18px">How presale works</b>
+            <div class="sub" style="margin-top:6px">
+              1) Connect Phantom<br/>
+              2) Enter SOL amount (min. <span id="minSolText2"></span>)<br/>
+              3) Click “Buy” → SOL is sent directly to the presale wallet<br/>
+              4) Phase badge updates automatically from wallet balance
+            </div>
+
+            <div class="goldline"></div>
+
+            <b style="font-size:18px">Links</b>
+            <div class="sub" style="margin-top:6px">
+              • Solscan: verify wallet & transactions<br/>
+              • GitHub Pages: public, transparent frontend
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const PRESALE_WALLET = "6g2Kn6hgfFUGXH44dDHLGPFL5eQG6FqR346HgGUrCmx4";
+    const MIN_SOL = 0.2;
+    const START_BALANCE_SOL = 0;
+
+    const RPC_LIST = [
+      "https://solana-mainnet.g.alchemy.com/v2/uenOkKWZ9SOxMAXUPWvin",
+      "https://api.mainnet-beta.solana.com",
+      "https://rpc.ankr.com/solana"
+    ];
+
+    const PHASES = [
+      {phase: 1, rate: 6000000, solCap: 3.0,     tokenCap: 18000000},
+      {phase: 2, rate: 5750000, solCap: 5.0,     tokenCap: 28750000},
+      {phase: 3, rate: 5500000, solCap: 7.0,     tokenCap: 38500000},
+      {phase: 4, rate: 5250000, solCap: 9.0,     tokenCap: 47250000},
+      {phase: 5, rate: 5000000, solCap: 12.0,    tokenCap: 60000000},
+      {phase: 6, rate: 4750000, solCap: 12.0,    tokenCap: 57000000},
+      {phase: 7, rate: 4500000, solCap: 12.0,    tokenCap: 54000000},
+      {phase: 8, rate: 4250000, solCap: 12.0,    tokenCap: 51000000},
+      {phase: 9, rate: 4000000, solCap: 12.0,    tokenCap: 48000000},
+      {phase:10, rate: 3750000, solCap: 12.6667, tokenCap: 47500000},
+    ];
+
+    // =========================
+    // UI HELPERS
+    // =========================
+    const el = (id)=>document.getElementById(id);
+    function shortAddr(a){ return a.slice(0,4)+"…"+a.slice(-5); }
+    function formatNum(n){ return n.toLocaleString("en-US"); }
+    function formatSol(n){ return (Math.round(n*10000)/10000).toString(); }
+    function setStatus(msg){ el("txStatus").innerHTML = msg; }
+    function setRpcStatus(msg){ el("rpcStatus").textContent = msg; }
+
+    el("minSolText").textContent = MIN_SOL;
+    el("minSolText2").textContent = MIN_SOL;
+    el("kWalletShort").textContent = shortAddr(PRESALE_WALLET);
+    el("kWalletFull").textContent = PRESALE_WALLET;
+
+    // Tabs
+    const pagePresale = el("pagePresale");
+    const pageTokenomics = el("pageTokenomics");
+    const tabPresale = el("tabPresale");
+    const tabTokenomics = el("tabTokenomics");
+
+    function showPresale(){
+      pagePresale.classList.remove("hide");
+      pageTokenomics.classList.add("hide");
+      tabPresale.classList.add("btn--active");
+      tabTokenomics.classList.remove("btn--active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+    function showTokenomics(){
+      pagePresale.classList.add("hide");
+      pageTokenomics.classList.remove("hide");
+      tabTokenomics.classList.add("btn--active");
+      tabPresale.classList.remove("btn--active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+    tabPresale.addEventListener("click", showPresale);
+    tabTokenomics.addEventListener("click", showTokenomics);
+    el("btnTokenomicsJump").addEventListener("click", showTokenomics);
+    el("backToPresale").addEventListener("click", showPresale);
+
+    // Solscan + Copy
+    el("openSolscan").addEventListener("click", ()=>window.open(`https://solscan.io/account/${PRESALE_WALLET}`,"_blank"));
+    el("copyPresale").addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(PRESALE_WALLET);
+        setStatus("Copied presale wallet ✅");
+        setTimeout(()=>setStatus("Status: ready ✅"), 1200);
+      }catch{
+        setStatus("Copy failed. Please copy manually.");
+      }
+    });
+
+    // Phase table
+    const tbody = document.querySelector("#phaseTable tbody");
+    PHASES.forEach(p=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><b>Phase ${p.phase}</b></td>
+        <td>${formatNum(p.rate)} GOLDINU</td>
+        <td>${formatSol(p.solCap)} SOL</td>
+        <td>${formatNum(p.tokenCap)} GOLDINU</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // =========================
+    // SOLANA + RPC MANAGER
+    // =========================
+    const { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } = solanaWeb3;
+
+    let connection = null;
+    let currentRpcIndex = 0;
+
+    async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+    async function probeRpc(url){
+      const c = new Connection(url, "confirmed");
+      const t0 = performance.now();
+      await c.getLatestBlockhash("confirmed");
+      const t1 = performance.now();
+      return { url, latencyMs: Math.round(t1 - t0) };
+    }
+
+    function rpcLabel(url){
+      if (url.includes("alchemy")) return "Alchemy";
+      if (url.includes("ankr")) return "Ankr";
+      return "Mainnet";
+    }
+
+    async function initConnection(){
+      const results = [];
+      for (const url of RPC_LIST){
+        try{ results.push(await probeRpc(url)); } catch(e){}
+      }
+      if (!results.length){
+        setRpcStatus("RPC: all endpoints failed");
+        throw new Error("All RPC endpoints failed");
+      }
+      results.sort((a,b)=>a.latencyMs - b.latencyMs);
+      const best = results[0];
+      currentRpcIndex = RPC_LIST.indexOf(best.url);
+      connection = new Connection(best.url, "confirmed");
+      setRpcStatus(`RPC: ${rpcLabel(best.url)} (~${best.latencyMs}ms) ✅`);
+    }
+
+    async function switchToNextRpc(){
+      for (let step = 1; step <= RPC_LIST.length; step++){
+        const idx = (currentRpcIndex + step) % RPC_LIST.length;
+        const url = RPC_LIST[idx];
+        try{
+          const c = new Connection(url, "confirmed");
+          await c.getLatestBlockhash("confirmed");
+          connection = c;
+          currentRpcIndex = idx;
+          setRpcStatus(`RPC switched: ${rpcLabel(url)} ✅`);
+          return true;
+        }catch(e){}
+      }
+      setRpcStatus("RPC switch failed");
+      return false;
+    }
+
+    async function withRetries(fn, { tries = 3, delayMs = 350 } = {}){
+      let lastErr = null;
+      for (let i = 0; i < tries; i++){
+        try{ return await fn(); }
+        catch(e){
+          lastErr = e;
+          await switchToNextRpc();
+          await sleep(delayMs * (i+1));
+        }
+      }
+      throw lastErr;
+    }
+
+    // =========================
+    // PHANTOM BUY
+    // =========================
+    let provider = null;
+    let userPubkey = null;
+
+    function getProvider(){
+      if ("solana" in window) {
+        const p = window.solana;
+        if (p?.isPhantom) return p;
+      }
+      return null;
+    }
+
+    async function connectWallet(){
+      provider = getProvider();
+      if (!provider){
+        setStatus("Phantom not found. Install Phantom.");
+        return;
+      }
+      try{
+        const resp = await provider.connect();
+        userPubkey = resp.publicKey;
+        el("kUserWallet").textContent = shortAddr(userPubkey.toString());
+        setStatus("Wallet connected ✅");
+      }catch(e){
+        setStatus("Connect canceled");
+      }
+    }
+
+    async function getWalletSol(){
+      const pub = new PublicKey(PRESALE_WALLET);
+      return await withRetries(async ()=>{
+        const lamports = await connection.getBalance(pub, "confirmed");
+        return lamports / LAMPORTS_PER_SOL;
+      });
+    }
+
+    function computeCurrentPhase(raisedSol){
+      let cum = 0;
+      for (const p of PHASES){
+        cum += p.solCap;
+        if (raisedSol < cum + 1e-9) return p.phase;
+      }
+      return PHASES[PHASES.length - 1].phase;
+    }
+
+    function totalSolCap(){ return PHASES.reduce((a,p)=>a + p.solCap, 0); }
+
+    async function updatePhaseBadge(){
+      try{
+        const bal = await getWalletSol();
+        const raised = Math.max(0, bal - START_BALANCE_SOL);
+        const phase = computeCurrentPhase(raised);
+
+        const cap = totalSolCap();
+        const left = Math.max(0, cap - raised);
+
+        el("phaseBadge").textContent = `Phase: ${phase} • Raised: ${formatSol(raised)} SOL • Left: ${formatSol(left)} SOL`;
+      }catch{
+        el("phaseBadge").textContent = "Phase: — (network)";
+      }
+    }
+
+    async function capCheckOrBlock(amt){
+      const cap = totalSolCap();
+      const bal = await getWalletSol();
+      const raised = Math.max(0, bal - START_BALANCE_SOL);
+      if (raised + amt > cap + 1e-9){
+        const left = Math.max(0, cap - raised);
+        setStatus(`Sold out / cap reached. Left: ${formatSol(left)} SOL`);
+        return false;
+      }
+      return true;
+    }
+
+    async function sendSol(){
+      if (!connection){
+        setStatus("Initializing network…");
+        await initConnection();
+      }
+
+      if (!userPubkey){
+        await connectWallet();
+        if (!userPubkey) return;
+      }
+
+      const amt = Number(el("amountSol").value);
+      if (!amt || amt <= 0){ setStatus("Enter a valid SOL amount (e.g. 0.2)"); return; }
+      if (amt < MIN_SOL){ setStatus(`Minimum is ${MIN_SOL} SOL`); return; }
+
+      setStatus("Checking cap…");
+      const ok = await capCheckOrBlock(amt);
+      if (!ok) return;
+
+      try{
+        setStatus("Creating transaction…");
+        const fromPubkey = userPubkey;
+        const toPubkey = new PublicKey(PRESALE_WALLET);
+
+        const tx = new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey,
+            toPubkey,
+            lamports: Math.round(amt * LAMPORTS_PER_SOL),
+          })
+        );
+
+        tx.feePayer = fromPubkey;
+
+        const { blockhash, lastValidBlockHeight } = await withRetries(
+          async ()=> await connection.getLatestBlockhash("finalized"),
+          { tries: 3 }
+        );
+        tx.recentBlockhash = blockhash;
+
+        setStatus("Sign in Phantom…");
+        const signed = await provider.signTransaction(tx);
+
+        setStatus("Sending…");
+        const sig = await withRetries(
+          async ()=> await connection.sendRawTransaction(signed.serialize(), { skipPreflight: false }),
+          { tries: 3 }
+        );
+
+        setStatus("Confirming…");
+        await withRetries(async ()=>{
+          return await connection.confirmTransaction(
+            { signature: sig, blockhash, lastValidBlockHeight },
+            "confirmed"
+          );
+        }, { tries: 3 });
+
+        setStatus(`✅ Success • TX: <a href="https://solscan.io/tx/${sig}" target="_blank" rel="noreferrer">${sig}</a>`);
+        setTimeout(updatePhaseBadge, 1200);
+      }catch(e){
+        await switchToNextRpc();
+        setStatus("Error: " + (e?.message || e));
+      }
+    }
+
+    el("btnConnect").addEventListener("click", connectWallet);
+    el("btnBuy").addEventListener("click", sendSol);
+
+    (async ()=>{
+      try{
+        setStatus("Initializing RPC…");
+        await initConnection();
+        setStatus("Status: ready ✅");
+        await updatePhaseBadge();
+        setInterval(updatePhaseBadge, 15000);
+      }catch(e){
+        setStatus("Network init failed");
+      }
+    })();
+  </script>
+</body>
+</html>
